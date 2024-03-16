@@ -4,23 +4,15 @@ import { LoginUserDto } from './dto/login-user.dto';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: RegisterUserDto) {
-    return 'This action adds a new auth';
+  register(registerUserDto: RegisterUserDto) {
+    return 'This action register a new user';
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  login(loginUserDto: LoginUserDto) {
+    return `This action login a user and return auth data`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: LoginUserDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+  renewToken(oldToken: string) {
+    return `This action returns a new token`;
   }
 }
