@@ -3,14 +3,14 @@ import { Document } from 'mongoose';
 
 @Schema()
 export class User extends Document {
-  @Prop({ unique: true, index: true })
+  @Prop({ unique: true, index: true, required: true })
   username: string;
 
-  @Prop({ unique: true, index: true })
+  @Prop({ unique: true, index: true, required: true })
   email: string;
 
-  @Prop()
+  @Prop({required: true})
   password: string;
 }
 
-export const UserSchema = SchemaFactory.createForClass(User)
+export const UserSchema = SchemaFactory.createForClass(User);
