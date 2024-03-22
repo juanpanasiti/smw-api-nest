@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import * as bcrypt from 'bcrypt';
 
 import { User } from './entities/user.entity';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { HandleDbErrors } from 'src/common/HandleDbErrors';
 
 @Injectable()
 export class AuthService {
@@ -13,8 +15,14 @@ export class AuthService {
     private readonly userModel: Model<User>,
   ) {}
 
-  register(registerUserDto: RegisterUserDto) {
-    //
+  async register(registerUserDto: RegisterUserDto) {
+    try {
+      const {password, ...userData} = registerUserDto
+      const user = await this.userModel.create({...userData, password: this.encryptPassword(password)});
+      return user;
+    } catch (error) {
+      HandleDbErrors.handle(error);
+    }
   }
 
   login(loginUserDto: LoginUserDto) {
@@ -23,5 +31,9 @@ export class AuthService {
 
   renewToken(oldToken: string) {
     return `This action returns a new token`;
+  }
+
+  private encryptPassword(password): string {
+    return bcrypt.hashSync(password, 10)
   }
 }
