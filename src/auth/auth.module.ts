@@ -19,10 +19,23 @@ import { JwtModule } from '@nestjs/jwt';
     ]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     // Sync example
-    JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: {
-        expiresIn: '1d',
+    // JwtModule.register({
+    //   secret: process.env.JWT_SECRET,
+    //   signOptions: {
+    //     expiresIn: '1d',
+    //   },
+    // }),
+    // Async mode
+    JwtModule.registerAsync({
+      imports: [],
+      inject: [],
+      useFactory: () => {
+        return {
+          secret: process.env.JWT_SECRET,
+          signOptions: {
+            expiresIn: '1d',
+          },
+        };
       },
     }),
   ],
