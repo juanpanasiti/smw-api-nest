@@ -6,7 +6,7 @@ import { InjectModel } from '@nestjs/mongoose';
 
 import { User } from '../entities/user.entity';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
-import { HandleAuthErrors } from 'src/common/HandleAuthErrors';
+import { HandleAuthErrors } from 'src/common/error-handlers';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
