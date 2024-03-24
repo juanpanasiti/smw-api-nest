@@ -40,8 +40,9 @@ export class AuthService {
     return { username, id, token };
   }
 
-  renewToken(oldToken: string) {
-    return `This action returns a new token`;
+  renewToken({username, id}: User): AuthResponseDto {
+    const token = this.getToken({userId: id})
+    return { username, id, token };
   }
 
   private encryptPassword(password): string {
