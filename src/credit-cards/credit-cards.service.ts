@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCreditCardDto } from './dto/create-credit-card.dto';
-import { UpdateCreditCardDto } from './dto/update-credit-card.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { CreditCard } from './entities/credit-card.entity';
 import { Model } from 'mongoose';
+
+import { CreditCard } from './entities/credit-card.entity';
+import { CreateCreditCardDto, UpdateCreditCardDto } from './dto';
 
 @Injectable()
 export class CreditCardsService {

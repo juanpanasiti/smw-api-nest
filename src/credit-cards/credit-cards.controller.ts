@@ -1,7 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { CreditCardsService } from './credit-cards.service';
-import { CreateCreditCardDto } from './dto/create-credit-card.dto';
-import { UpdateCreditCardDto } from './dto/update-credit-card.dto';
+import { CreateCreditCardDto, UpdateCreditCardDto } from './dto';
 
 @Controller('credit-cards')
 export class CreditCardsController {
