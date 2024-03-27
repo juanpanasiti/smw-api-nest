@@ -1,9 +1,9 @@
-import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthGuard } from '@nestjs/passport';
 import { User } from './entities/user.entity';
 import { GetUser } from './decorators/get-user.decorator';
 import { LoginUserDto, RegisterUserDto } from './dto';
+import { Auth } from './decorators/auth.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -22,7 +22,7 @@ export class AuthController {
   }
 
   @Get('/token')
-  @UseGuards(AuthGuard())
+  @Auth()
   renewToken(@GetUser() user: User) {
     return this.authService.renewToken(user);
   }
