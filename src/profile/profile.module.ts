@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+
 import { ProfileService } from './profile.service';
 import { ProfileController } from './profile.controller';
-import { MongooseModule } from '@nestjs/mongoose';
 import { Profile, ProfileSchema } from './entities/profile.entity';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   controllers: [ProfileController],
@@ -14,6 +16,7 @@ import { Profile, ProfileSchema } from './entities/profile.entity';
         schema: ProfileSchema,
       },
     ]),
+    AuthModule,
   ],
 })
 export class ProfileModule {}

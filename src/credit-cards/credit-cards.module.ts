@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+
 import { CreditCardsService } from './credit-cards.service';
 import { CreditCardsController } from './credit-cards.controller';
-import { MongooseModule } from '@nestjs/mongoose';
 import { CreditCard, CreditCardSchema } from './entities/credit-card.entity';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   controllers: [CreditCardsController],
@@ -14,6 +16,7 @@ import { CreditCard, CreditCardSchema } from './entities/credit-card.entity';
         schema: CreditCardSchema,
       },
     ]),
+    AuthModule,
   ],
 })
 export class CreditCardsModule {}

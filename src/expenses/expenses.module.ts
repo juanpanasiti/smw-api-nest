@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+
 import { ExpensesService } from './expenses.service';
 import { ExpensesController } from './expenses.controller';
-import { MongooseModule } from '@nestjs/mongoose';
 import { Expense, ExpenseSchema } from './entities/expense.entity';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   controllers: [ExpensesController],
@@ -14,6 +16,7 @@ import { Expense, ExpenseSchema } from './entities/expense.entity';
         schema: ExpenseSchema,
       },
     ]),
+    AuthModule,
   ],
 })
 export class ExpensesModule {}
