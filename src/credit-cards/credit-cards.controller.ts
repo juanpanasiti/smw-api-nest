@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseInterceptors } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 import { CreditCardsService } from './credit-cards.service';
 import { CreateCreditCardDto, UpdateCreditCardDto } from './dto';
@@ -8,6 +9,7 @@ import { PaginationDto } from '../common/dto';
 import { ResponseInterceptor } from 'src/common/interceptors/response/response.interceptor';
 
 @UseInterceptors(ResponseInterceptor)
+@ApiTags('Credit Cards')
 @Controller('credit-cards')
 export class CreditCardsController {
   constructor(private readonly creditCardsService: CreditCardsService) {}
