@@ -1,6 +1,7 @@
 import { IsEmail, IsString, MaxLength, MinLength } from "class-validator";
+import { CreateProfileDto } from "src/profile/dto";
 
-export class RegisterUserDto {
+export class RegisterUserDto extends CreateProfileDto {
     @IsString()
     @MinLength(8)
     @MaxLength(25)

@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
@@ -8,6 +8,7 @@ import { User } from './entities/user.entity';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { HandleAuthErrors, HandleDbErrors } from 'src/common/error-handlers';
 import { AuthResponseDto, LoginUserDto, RegisterUserDto } from './dto';
+import { ProfileService } from 'src/profile/profile.service';
 
 @Injectable()
 export class AuthService {
@@ -15,31 +16,36 @@ export class AuthService {
     @InjectModel(User.name)
     private readonly userModel: Model<User>,
 
+    @Inject(forwardRef(() => ProfileService))
+    private readonly profileService: ProfileService,
+
     private readonly jwtService: JwtService,
   ) {}
 
   async register(registerUserDto: RegisterUserDto): Promise<AuthResponseDto> {
     try {
-      const { password, ...userData } = registerUserDto;
-      const {username, id} = await this.userModel.create({ ...userData, password: this.encryptPassword(password) });
-      const token = this.getToken({userId: id})
-    return { username, id, token };
+      const { username, id, profile } = await this.createUserWithProfile(registerUserDto);
+
+      const token = this.getToken({ userId: id });
+      return { id, username, profile, token };
     } catch (error) {
       HandleDbErrors.handle(error);
     }
   }
 
   async login(loginCredentials: LoginUserDto): Promise<AuthResponseDto> {
-    const user = await this.userModel.findOne({ username: loginCredentials.username }).select(['username', 'password']);
+    const user = await this.userModel.findOne({ username: loginCredentials.username }).select(['username', 'password', 'profile']).populate('profile');
     if (!user || !this.checkPassword(loginCredentials.password, user.password)) HandleAuthErrors.loginError();
-    const {username, id} = user
-    const token = this.getToken({userId: id})
-    return { username, id, token };
+    const { username, id, profile } = user;
+    const token = this.getToken({ userId: id });
+    return { id, username, profile, token };
   }
 
-  renewToken({username, id}: User): AuthResponseDto {
-    const token = this.getToken({userId: id})
-    return { username, id, token };
+  async renewToken(user: User): Promise<AuthResponseDto> {
+    const {id, username} = user
+    const token = this.getToken({ userId: id });
+    const profile = await this.profileService.findOne(user.profile.toString(), user)
+    return { id, username, profile, token };
   }
 
   private encryptPassword(password): string {
@@ -53,5 +59,17 @@ export class AuthService {
   private getToken(payload: JwtPayload): string {
     const token = this.jwtService.sign(payload);
     return token;
+  }
+
+  private async createUserWithProfile(registerUserDto: RegisterUserDto) {
+    const { password, profileData, ...userData } = this.cleanData(registerUserDto);
+    const user = await this.userModel.create({ ...userData, password: this.encryptPassword(password) });
+    const profile = await this.profileService.create(profileData, user);
+    return await this.userModel.findByIdAndUpdate(user.id, { profile: profile._id }, { new: true }).populate('profile');
+  }
+
+  private cleanData(registerUserDto: RegisterUserDto) {
+    const { password, username, email, ...profileData } = registerUserDto;
+    return { password, username, email, profileData };
   }
 }

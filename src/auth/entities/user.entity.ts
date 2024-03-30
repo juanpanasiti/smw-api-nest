@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 import { ValidRoles } from '../interfaces';
 
@@ -16,6 +16,12 @@ export class User extends Document {
 
   @Prop({ default: [ValidRoles.user] })
   roles: ValidRoles[];
+
+  @Prop({ type: Types.ObjectId, ref: 'Profile', default: null })
+  profile: Types.ObjectId;
+
+  @Prop({ type: Boolean, default: true })
+  isActive: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

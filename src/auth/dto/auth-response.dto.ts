@@ -13,4 +13,7 @@ export class AuthResponseDto {
     uniqueItems: true,
   })
   readonly token: string;
+
+  @ApiProperty()
+  readonly profile;
 }

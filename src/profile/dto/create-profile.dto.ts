@@ -1,9 +1,6 @@
-import { IsDateString, IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsOptional, IsPositive, IsString } from 'class-validator';
 
 export class CreateProfileDto {
-  // @IsMongoId
-  // readonly userId: mongoId
-
   @IsString()
   readonly firstName: string;
 
@@ -13,4 +10,8 @@ export class CreateProfileDto {
   @IsDateString({ strictSeparator: false, strict: true })
   @IsOptional()
   readonly birthDate?: string;
+
+  @IsPositive()
+  @IsOptional()
+  readonly creditCardAmountAlert?: number;
 }
