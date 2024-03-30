@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { ProfileService } from './profile.service';
@@ -16,7 +16,8 @@ import { AuthModule } from '../auth/auth.module';
         schema: ProfileSchema,
       },
     ]),
-    AuthModule,
+    forwardRef(() => AuthModule),
   ],
+  exports: [ProfileService],
 })
 export class ProfileModule {}

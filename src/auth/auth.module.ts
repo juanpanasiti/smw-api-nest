@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { AuthService } from './auth.service';
@@ -7,6 +7,7 @@ import { User, UserSchema } from './entities/user.entity';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { ProfileModule } from 'src/profile/profile.module';
 
 @Module({
   controllers: [AuthController],
@@ -21,7 +22,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     // Sync example
     // JwtModule.register({
-    //   secret: process.env.JWT_SECRET,
+      //   secret: process.env.JWT_SECRET,
     //   signOptions: {
     //     expiresIn: '1d',
     //   },
@@ -39,6 +40,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
         };
       },
     }),
+    forwardRef(() => ProfileModule),
   ],
   exports: [JwtStrategy, PassportModule, JwtModule],
 })
