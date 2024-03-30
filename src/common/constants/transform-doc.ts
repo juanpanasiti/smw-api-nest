@@ -5,5 +5,6 @@ type Ret = Record<string, any>;
 export const transformDoc = (doc: Doc, ret: Ret) => {
   ret.id = ret._id;
   delete ret._id;
+  delete ret.isActive;
   return ret;
 };
