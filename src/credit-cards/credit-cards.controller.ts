@@ -5,8 +5,8 @@ import { CreditCardsService } from './credit-cards.service';
 import { CreateCreditCardDto, UpdateCreditCardDto } from './dto';
 import { Auth, GetUser } from '../auth/decorators';
 import { User } from '../auth/entities/user.entity';
-import { PaginationDto } from '../common/dto';
 import { ResponseInterceptor } from 'src/common/interceptors/response/response.interceptor';
+import { ListOptions } from './dto/list-options.dto';
 
 @UseInterceptors(ResponseInterceptor)
 @ApiTags('Credit Cards')
@@ -22,14 +22,14 @@ export class CreditCardsController {
 
   @Get()
   @Auth()
-  findAll(@Query() pagination: PaginationDto, @GetUser() user: User) {
-    return this.creditCardsService.findAll(user, pagination);
+  findAll(@Query() options: ListOptions, @GetUser() user: User) {
+    return this.creditCardsService.findAll(user, options);
   }
 
   @Get(':id')
   @Auth()
-  findOne(@Param('id') id: string, @GetUser() user: User) {
-    return this.creditCardsService.findOne(id, user);
+  findOne(@Query() options: ListOptions, @Param('id') id: string, @GetUser() user: User) {
+    return this.creditCardsService.findOne(id, user, options);
   }
 
   @Patch(':id')
@@ -37,10 +37,16 @@ export class CreditCardsController {
   update(@Param('id') id: string, @Body() updateCreditCardDto: UpdateCreditCardDto, @GetUser() user: User) {
     return this.creditCardsService.update(id, user, updateCreditCardDto);
   }
-  
+
+  @Patch(':mainId/remove-extension/:extId')
+  @Auth()
+  removeExtension(@Param('mainId') mainId, @Param('extId') extId: string, @GetUser() user: User) {
+    return this.creditCardsService.removeExtension(mainId, extId, user);
+  }
+
   @Delete(':id')
   @Auth()
-  remove(@Param('id') id: string, @GetUser() user: User) {
-    return this.creditCardsService.remove(id, user);
+  delete(@Param('id') id: string, @GetUser() user: User) {
+    return this.creditCardsService.delete(id, user);
   }
 }

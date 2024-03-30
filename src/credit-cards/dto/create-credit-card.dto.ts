@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsDecimal, IsMongoId, IsNumber, IsOptional, IsPositive, IsString, MaxLength, Min, MinDate, MinLength } from "class-validator";
+import { IsMongoId, IsNumber, IsOptional, IsPositive, IsString, MaxLength, MinDate, MinLength } from "class-validator";
 
 export class CreateCreditCardDto {
     @ApiProperty({example: 'My VISA', nullable: false})
@@ -11,7 +11,8 @@ export class CreateCreditCardDto {
     @ApiProperty({example: 500000, nullable: false})
     @IsNumber({maxDecimalPlaces: 2})
     @IsPositive()
-    readonly limit: number;
+    @IsOptional()
+    readonly limit?: number;
     
     @ApiProperty({ example: '660390c737f82a34d15cf791', uniqueItems: true })
     @IsMongoId()
