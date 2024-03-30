@@ -13,6 +13,7 @@ export class ProfileService {
     @InjectModel(Profile.name)
     private readonly profileModel: Model<Profile>,
   ) {}
+  
   async create(createProfileDto: CreateProfileDto, user: User) {
     try {
       const newProfile = await this.profileModel.create({ ...createProfileDto, user: user._id });

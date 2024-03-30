@@ -1,10 +1,11 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { CreditCardsService } from './credit-cards.service';
 import { CreditCardsController } from './credit-cards.controller';
 import { CreditCard, CreditCardSchema } from './entities/credit-card.entity';
 import { AuthModule } from '../auth/auth.module';
+import { ExpensesModule } from 'src/expenses/expenses.module';
 
 @Module({
   controllers: [CreditCardsController],
@@ -17,6 +18,8 @@ import { AuthModule } from '../auth/auth.module';
       },
     ]),
     AuthModule,
+    forwardRef(() => ExpensesModule),
   ],
+  exports: [CreditCardsService],
 })
 export class CreditCardsModule {}

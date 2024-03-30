@@ -3,6 +3,8 @@ import { ApiTags } from '@nestjs/swagger';
 
 import { ExpensesService } from './expenses.service';
 import { CreateExpenseDto, UpdateExpenseDto } from './dto';
+import { Auth, GetUser } from 'src/auth/decorators';
+import { User } from 'src/auth/entities/user.entity';
 
 @ApiTags('Expenses')
 @Controller('expenses')
@@ -10,8 +12,9 @@ export class ExpensesController {
   constructor(private readonly expensesService: ExpensesService) {}
 
   @Post()
-  create(@Body() createExpenseDto: CreateExpenseDto) {
-    return this.expensesService.create(createExpenseDto);
+  @Auth()
+  create(@Body() createExpenseDto: CreateExpenseDto, @GetUser() user: User) {
+    return this.expensesService.create(createExpenseDto, user);
   }
 
   @Get()

@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
+import { ExpenseTypes } from '../enums';
 
 @Schema()
 export class Expense extends Document {
@@ -12,17 +13,23 @@ export class Expense extends Document {
   @Prop()
   acquiredAt: Date;
 
-  //   @Prop()
-  //   creditCardId: string;
+  @Prop({ type: Types.ObjectId, ref: 'CreditCard', required: true })
+  creditCard: Types.ObjectId;
 
   @Prop()
-  type: 'subscription' | 'purchase';
+  type: ExpenseTypes;
 
   @Prop()
   amount: number;
 
   @Prop()
   installments: number;
+
+  @Prop()
+  firstPaymentDate: Date;
+
+  @Prop({ type: [Types.ObjectId], ref: 'Payment', default: [] })
+  payments: Types.ObjectId[];
 
   @Prop()
   isActive: boolean; // true by default

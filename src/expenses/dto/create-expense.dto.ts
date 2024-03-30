@@ -1,29 +1,36 @@
-import { IsBoolean, IsDecimal, IsInt, IsPositive, IsString, MaxDate } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { IsDate, IsEnum, IsInt, IsMongoId, IsNotEmpty, IsNumber, IsPositive, IsString, MaxDate, MinLength } from 'class-validator';
+
+import { ExpenseTypes } from '../enums';
 
 export class CreateExpenseDto {
+  @ApiProperty({ example: 'Something cool', nullable: false })
   @IsString()
+  @MinLength(3)
   readonly title: string;
 
   @IsString()
+  @IsNotEmpty()
   readonly ccName: string;
-  
-  @MaxDate(new Date(), {message: 'must be today or before'})
+
+  @MaxDate(new Date(), { message: 'acquiredAt must be today or before' })
   readonly acquiredAt: Date;
 
-  // @IsMongoId
-  // readonly creditCardId: mongoId
+  @IsMongoId()
+  readonly creditCardId: string;
 
   @IsString()
-  readonly type: 'subscription' | 'purchase';
+  @IsEnum(ExpenseTypes)
+  readonly type: ExpenseTypes;
 
   @IsPositive()
-  @IsDecimal({decimal_digits: '0,2'})
+  @IsNumber({ maxDecimalPlaces: 2 })
   readonly amount: number;
 
   @IsPositive()
   @IsInt()
   readonly installments: number;
 
-  @IsBoolean()
-  readonly isActive: boolean; // true by default
+  @IsDate()
+  readonly firstPaymentDate: Date;
 }
