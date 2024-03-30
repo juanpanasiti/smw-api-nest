@@ -41,7 +41,6 @@ export class CreditCardsService {
 
   async findOne(id: string, user: User, options: ListOptions = {}) {
     const populate = this.getPopulateString(options);
-    console.log({populate})
     const creditCard = await this.getOneFromDb({ _id: id, owner: user._id }, populate);
     if (!creditCard) HandleDbErrors.handle({ code: 'NOT_FOUND', message: 'Credit card not found' });
     return creditCard;
