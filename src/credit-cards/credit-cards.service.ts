@@ -29,7 +29,8 @@ export class CreditCardsService {
     }
   }
 
-  async findAll(user: User, options: ListOptions) {
+  async findAll(user: User, options?: ListOptions) {
+    // TODO: Add option to get all cc and select fields
     const { limit = PAGE_LIMIT, offset = PAGE_OFFSET } = options;
     let query = this.creditCardModel.find({ owner: user._id });
     const populate = this.getPopulateString(options, query);
@@ -52,13 +53,13 @@ export class CreditCardsService {
     if (!oldCreditCard) HandleDbErrors.handle({ code: 'NOT_FOUND', message: 'Credit card not found' });
     const updatedCreditCard = await this.creditCardModel.findByIdAndUpdate(id, updateCreditCardDto, { new: true });
     if (updateCreditCardDto.mainCreditCard) this.addNewExtension(mainCreditCard, oldCreditCard);
-    return updatedCreditCard
+    return updatedCreditCard;
   }
 
-  async removeExtension(mainId: string, extensionId: string, user:User){
+  async removeExtension(mainId: string, extensionId: string, user: User) {
     const mainCreditCard = await this.getOneFromDb({ _id: mainId, owner: user._id });
     const extension = await this.getOneFromDb({ _id: extensionId, owner: user._id });
-    mainCreditCard.extensions = mainCreditCard.extensions.filter(id => id.toString() !== extensionId);
+    mainCreditCard.extensions = mainCreditCard.extensions.filter((id) => id.toString() !== extensionId);
     extension.mainCreditCard = null;
     await Promise.all([mainCreditCard.save(), extension.save()]);
   }
@@ -71,7 +72,10 @@ export class CreditCardsService {
 
   private async getOneFromDb(query: object, populate: string = ''): Promise<CreditCard> {
     try {
-      return await this.creditCardModel.findOne({ ...query, isActive: true }).populate(populate).exec();
+      return await this.creditCardModel
+        .findOne({ ...query, isActive: true })
+        .populate(populate)
+        .exec();
     } catch (error) {
       HandleDbErrors.handle(error);
     }
@@ -83,7 +87,7 @@ export class CreditCardsService {
   }
 
   private async addNewExtension(creditCard: CreditCard, extension: CreditCard) {
-    if (! creditCard || creditCard.extensions.includes(extension._id)) return;
+    if (!creditCard || creditCard.extensions.includes(extension._id)) return;
     creditCard.extensions.push(extension._id);
     await creditCard.save();
   }

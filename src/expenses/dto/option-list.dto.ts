@@ -1,10 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsOptional } from 'class-validator';
+import { IsEnum, IsMongoId, IsOptional } from 'class-validator';
 import { PaginationDto } from 'src/common/dto';
+import { ExpenseTypes } from '../enums';
 
-export class OptionsList extends PaginationDto {
+export class OptionList extends PaginationDto {
   @ApiProperty()
-  @IsBoolean()
+  @IsMongoId()
   @IsOptional()
-  userInfo?: boolean;
+  creditCardId?: string;
+
+  @ApiProperty()
+  @IsEnum(ExpenseTypes)
+  @IsOptional()
+  type: ExpenseTypes;
 }

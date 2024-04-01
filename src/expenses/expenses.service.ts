@@ -1,14 +1,15 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { FilterQuery, Model, Types } from 'mongoose';
 
 import { Expense, Payment } from './entities';
-import { CreateExpenseDto, UpdateExpenseDto } from './dto';
+import { CreateExpenseDto, OptionList, UpdateExpenseDto } from './dto';
 import { User } from 'src/auth/entities/user.entity';
 import { CreditCardsService } from 'src/credit-cards/credit-cards.service';
 import { CreditCard } from 'src/credit-cards/entities/credit-card.entity';
 import { PaymentStatus } from './enums';
 import { calculateInstallmentAmount, getNextMonth } from './helpers';
+import { PAGE_LIMIT, PAGE_OFFSET } from 'src/common/constants';
 
 @Injectable()
 export class ExpensesService {
@@ -25,19 +26,25 @@ export class ExpensesService {
 
   async create({ creditCardId, ...expenseData }: CreateExpenseDto, user: User): Promise<Expense> {
     const creditCard = await this.getCreditCard(creditCardId, user);
-    const newExpense = await this.expenseModel.create({ ...expenseData, creditCard: creditCard._id });
+    const newExpense = await this.expenseModel.create({ ...expenseData, creditCard: creditCard._id, isActive: true });
     let newPayments;
     // Create the payments
     newPayments = await this.createPaymentsFromNewPurchase(newExpense);
 
-    newExpense.payments = newPayments.map(payment => payment._id);
+    newExpense.payments = newPayments.map((payment) => payment._id);
     await newExpense.save();
 
     return newExpense.populate('payments');
   }
 
-  findAll() {
-    return `This action returns all expenses`;
+  async findAll(user: User, options: OptionList) {
+    const { limit = PAGE_LIMIT, offset = PAGE_OFFSET } = options;
+    const filter = await this.getFilter(user, options);
+    let query = this.expenseModel.find(filter);
+
+    query = query.limit(limit).skip(offset);
+    const creditCardList = await query.exec();
+    return creditCardList;
   }
 
   findOne(id: number) {
@@ -78,5 +85,23 @@ export class ExpensesService {
       period = getNextMonth(period);
     }
     return await Promise.all(newPayments);
+  }
+
+  private async getFilter(user: User, options: OptionList): Promise<FilterQuery<Expense>> {
+    const creditCardList = await this.getCreditCardList(user, options.creditCardId);
+    const filter: FilterQuery<Expense> = {
+      isActive: true,
+      creditCard: { $in: creditCardList },
+    };
+
+    if (options.type) filter.type = options.type;
+
+    return filter;
+  }
+
+  private async getCreditCardList(user: User, creditCardId?: string): Promise<Types.ObjectId[]> {
+    if (creditCardId) return [new Types.ObjectId(creditCardId)];
+    const creditCards = await this.creditCardsService.findAll(user, { limit: 99, offset: 0 }); // TODO: permit all
+    return creditCards.map((creditCard) => creditCard._id);
   }
 }

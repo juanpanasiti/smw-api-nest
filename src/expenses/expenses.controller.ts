@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { ExpensesService } from './expenses.service';
-import { CreateExpenseDto, UpdateExpenseDto } from './dto';
+import { CreateExpenseDto, OptionList, UpdateExpenseDto } from './dto';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { User } from 'src/auth/entities/user.entity';
 
@@ -18,8 +18,9 @@ export class ExpensesController {
   }
 
   @Get()
-  findAll() {
-    return this.expensesService.findAll();
+  @Auth()
+  findAll(@Query() options: OptionList, @GetUser() user: User) {
+    return this.expensesService.findAll(user, options);
   }
 
   @Get(':id')
