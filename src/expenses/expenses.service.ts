@@ -28,7 +28,8 @@ export class ExpensesService {
     const newExpense = await this.expenseModel.create({ ...expenseData, creditCard: creditCard._id });
     let newPayments;
     // Create the payments
-    if (newExpense.type === 'purchase') newPayments = await this.createPaymentsFromNewPurchase(newExpense);
+    newPayments = await this.createPaymentsFromNewPurchase(newExpense);
+
     newExpense.payments = newPayments.map(payment => payment._id);
     await newExpense.save();
 
@@ -67,8 +68,8 @@ export class ExpensesService {
           status: PaymentStatus.unconfirmed,
           amount: installmentAmount,
           noInstallment: paymentNo,
-          month: period.getMonth() + 1,
-          year: period.getFullYear(),
+          month: period.getUTCMonth() + 1,
+          year: period.getUTCFullYear(),
           expense: newExpense._id,
         }),
       );
