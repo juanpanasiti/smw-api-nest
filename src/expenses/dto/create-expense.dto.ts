@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsEnum, IsInt, IsMongoId, IsNotEmpty, IsNumber, IsPositive, IsString, MaxDate, MinLength } from 'class-validator';
+import { IsDate, IsEnum, IsInt, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, MaxDate, MinLength } from 'class-validator';
 
 import { ExpenseTypes } from '../enums';
+import { IsForSubscriptionType } from '../validators/IsForSubscriptionType.validator';
 
 export class CreateExpenseDto {
   @ApiProperty({ example: 'Something cool', nullable: false })
@@ -28,7 +29,8 @@ export class CreateExpenseDto {
   readonly amount: number;
 
   @IsPositive()
-  @IsInt()
+  @IsInt({ groups: ['purchase'],  })
+  @IsForSubscriptionType([1])
   readonly installments: number;
 
   @IsDate()
