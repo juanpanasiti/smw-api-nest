@@ -61,8 +61,8 @@ export class ExpensesService {
     return updatedExpense;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} expense`;
+  async remove(id: string) {
+    return this.expenseModel.findByIdAndUpdate(id, { isActive: false });
   }
 
   private async getCreditCard(creditCardId: string, user: User): Promise<CreditCard> {
