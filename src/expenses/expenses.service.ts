@@ -65,6 +65,8 @@ export class ExpensesService {
     if (!updatePaymentDto.amount && !updatePaymentDto.status) HandleHttpErrors.badRequest('Body cannot be empty');
     const updatedPayment = await this.paymentModel.findOneAndUpdate({ _id: paymentId }, updatePaymentDto, { new: true });
     if (!updatedPayment) HandleHttpErrors.notFound('Payment not found');
+    if (updatePaymentDto.amount) await this.handleUpdatePaymentAmount(expenseId, paymentId, updatePaymentDto.amount);
+
     await this.checkPurchaseStatus(expenseId);
 
     return updatedPayment;
@@ -176,13 +178,35 @@ export class ExpensesService {
     const currentExpense = await this.expenseModel.findById(expenseId);
     if (currentExpense.type !== ExpenseTypes.purchase) return;
     const paidCount = await this.paymentModel.countDocuments({ expense: currentExpense._id, status: PaymentStatus.paid });
-    if ((paidCount === currentExpense.installments) && currentExpense.isDone === false) {
+    if (paidCount === currentExpense.installments && currentExpense.isDone === false) {
       currentExpense.isDone = true;
       await currentExpense.save();
-    } 
-    if ((paidCount < currentExpense.installments) && currentExpense.isDone === true) {
+    }
+    if (paidCount < currentExpense.installments && currentExpense.isDone === true) {
       currentExpense.isDone = false;
       await currentExpense.save();
-    } 
+    }
+  }
+
+  private async handleUpdatePaymentAmount(expenseId: string, paymentId: string, newAmount: number) {
+    const currentExpense = await this.expenseModel.findById(expenseId);
+    const currentPayments = await this.paymentModel.find({ expense: currentExpense._id });
+    const paymentsToUpdate = currentPayments.filter(
+      (payment) => payment._id.toString() !== paymentId && payment.status === PaymentStatus.unconfirmed,
+    );
+    const paidOrConfirmedAmount = currentPayments.reduce(
+      (acc, payment) => acc + (payment.status === PaymentStatus.unconfirmed && payment._id.toString() !== paymentId ? 0 : payment.amount),
+      0,
+    );
+    let remainingAmount = currentExpense.amount - paidOrConfirmedAmount;
+    let remainingInstallments = paymentsToUpdate.length;
+    const updateAmountPromises = paymentsToUpdate.map(async (payment) => {
+      const newAmount = calculateInstallmentAmount(remainingAmount, remainingInstallments);
+      const promise = this.paymentModel.findByIdAndUpdate(payment, { amount: newAmount }).exec();
+      remainingAmount -= newAmount;
+      remainingInstallments--;
+      return promise;
+    });
+    await Promise.all(updateAmountPromises);
   }
 }
