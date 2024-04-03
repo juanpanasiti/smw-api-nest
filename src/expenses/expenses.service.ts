@@ -43,12 +43,12 @@ export class ExpensesService {
     let query = this.expenseModel.find(filter);
 
     query = query.limit(limit).skip(offset);
-    const creditCardList = await query.exec();
-    return creditCardList;
+    const expenseList = await query.exec();
+    return expenseList;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} expense`;
+  async findOne(id: string): Promise<Expense> {
+    return await this.expenseModel.findById(id);
   }
 
   update(id: number, updateExpenseDto: UpdateExpenseDto) {

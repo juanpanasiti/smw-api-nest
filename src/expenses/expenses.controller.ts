@@ -25,7 +25,7 @@ export class ExpensesController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.expensesService.findOne(+id);
+    return this.expensesService.findOne(id);
   }
 
   @Patch(':id')
