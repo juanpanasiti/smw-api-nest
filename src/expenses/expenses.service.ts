@@ -3,14 +3,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, Types } from 'mongoose';
 
 import { Expense, Payment } from './entities';
-import { CreateExpenseDto, OptionList, UpdateExpenseDto } from './dto';
+import { CreateExpenseDto, OptionList, UpdateExpenseDto, UpdatePaymentDto } from './dto';
 import { User } from 'src/auth/entities/user.entity';
 import { CreditCardsService } from 'src/credit-cards/credit-cards.service';
 import { CreditCard } from 'src/credit-cards/entities/credit-card.entity';
 import { ExpenseTypes, PaymentStatus } from './enums';
 import { calculateInstallmentAmount, getNextMonth } from './helpers';
 import { PAGE_LIMIT, PAGE_OFFSET } from 'src/common/constants';
-import { HandleHttpErrors } from 'src/common/error-handlers';
+import { HandleDbErrors, HandleHttpErrors } from 'src/common/error-handlers';
 import { amountToStringCurrencyFormat } from './helpers/amountToStringCurrencyFormat';
 
 @Injectable()
@@ -61,8 +61,17 @@ export class ExpensesService {
     return updatedExpense;
   }
 
+  async updatePayment(expenseId: string, paymentId: string, updatePaymentDto: UpdatePaymentDto): Promise<Payment> {
+    if (!updatePaymentDto.amount && !updatePaymentDto.status) HandleHttpErrors.badRequest('Body cannot be empty');
+    const updatedPayment = await this.paymentModel.findOneAndUpdate({ _id: paymentId }, updatePaymentDto, { new: true });
+    if (!updatedPayment) HandleHttpErrors.notFound('Payment not found');
+    await this.checkPurchaseStatus(expenseId);
+
+    return updatedPayment;
+  }
+
   async remove(id: string) {
-    return this.expenseModel.findByIdAndUpdate(id, { isActive: false });
+    this.expenseModel.findByIdAndUpdate(id, { isActive: false });
   }
 
   private async getCreditCard(creditCardId: string, user: User): Promise<CreditCard> {
@@ -161,5 +170,19 @@ export class ExpensesService {
       await updatedExpense.save();
     }
     return updatedExpense.populate('payments');
+  }
+
+  private async checkPurchaseStatus(expenseId: string) {
+    const currentExpense = await this.expenseModel.findById(expenseId);
+    if (currentExpense.type !== ExpenseTypes.purchase) return;
+    const paidCount = await this.paymentModel.countDocuments({ expense: currentExpense._id, status: PaymentStatus.paid });
+    if ((paidCount === currentExpense.installments) && currentExpense.isDone === false) {
+      currentExpense.isDone = true;
+      await currentExpense.save();
+    } 
+    if ((paidCount < currentExpense.installments) && currentExpense.isDone === true) {
+      currentExpense.isDone = false;
+      await currentExpense.save();
+    } 
   }
 }
