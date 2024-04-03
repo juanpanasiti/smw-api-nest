@@ -22,15 +22,17 @@ export class ExpensesController {
   findAll(@Query() options: OptionList, @GetUser() user: User) {
     return this.expensesService.findAll(user, options);
   }
-
+  
   @Get(':id')
+  @Auth()
   findOne(@Param('id') id: string) {
     return this.expensesService.findOne(id);
   }
-
+  
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateExpenseDto: UpdateExpenseDto) {
-    return this.expensesService.update(+id, updateExpenseDto);
+  @Auth()
+  update(@Param('id') id: string, @Body() updateExpenseDto: UpdateExpenseDto, @GetUser() user: User) {
+    return this.expensesService.update(id, updateExpenseDto, user);
   }
 
   @Delete(':id')

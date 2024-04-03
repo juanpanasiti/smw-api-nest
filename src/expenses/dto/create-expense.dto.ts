@@ -29,7 +29,7 @@ export class CreateExpenseDto {
   readonly amount: number;
 
   @IsPositive()
-  @IsInt({ groups: ['purchase'],  })
+  @IsInt()
   @IsForSubscriptionType([1])
   readonly installments: number;
 

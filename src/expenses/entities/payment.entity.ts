@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { PaymentStatus } from '../enums';
 import { Month } from '../types';
+import { transformDoc } from 'src/common/constants';
 
 @Schema()
 export class Payment extends Document {
@@ -25,3 +26,9 @@ export class Payment extends Document {
 }
 
 export const PaymentSchema = SchemaFactory.createForClass(Payment);
+
+PaymentSchema.set('toJSON', {
+  virtuals: true,
+  versionKey: false,
+  transform: transformDoc
+});

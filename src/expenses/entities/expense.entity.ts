@@ -33,6 +33,9 @@ export class Expense extends Document {
 
   @Prop()
   isActive: boolean; // true by default
+
+  @Prop()
+  isDone: boolean; // false by default
 }
 
 export const ExpenseSchema = SchemaFactory.createForClass(Expense);
