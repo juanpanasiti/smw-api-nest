@@ -44,7 +44,7 @@ export class AuthService {
   async renewToken(user: User): Promise<AuthResponseDto> {
     const {id, username} = user
     const token = this.getToken({ userId: id });
-    const profile = await this.profileService.findOne(user.profile.toString(), user)
+    const profile = await this.profileService.findOne(user.profile.toString(), user, {})
     return { id, username, profile, token };
   }
 

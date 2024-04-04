@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { transformDoc } from 'src/common/constants';
 
 @Schema()
 export class Profile extends Document {
@@ -13,7 +14,7 @@ export class Profile extends Document {
   birthDate: string;
 
   @Prop()
-  creditCardAmountAlert: Date;
+  creditCardAmountAlert: number;
 
   @Prop({ type: Types.ObjectId, ref: 'User', default: null })
   user: Types.ObjectId;
@@ -23,3 +24,9 @@ export class Profile extends Document {
 }
 
 export const ProfileSchema = SchemaFactory.createForClass(Profile);
+
+ProfileSchema.set('toJSON', {
+  virtuals: true,
+  versionKey: false,
+  transform: transformDoc,
+});
