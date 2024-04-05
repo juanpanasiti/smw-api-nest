@@ -24,28 +24,31 @@ export class AuthService {
 
   async register(registerUserDto: RegisterUserDto): Promise<AuthResponseDto> {
     try {
-      const { username, id, profile } = await this.createUserWithProfile(registerUserDto);
+      const { username, id, profile, email } = await this.createUserWithProfile(registerUserDto);
 
       const token = this.getToken({ userId: id });
-      return { id, username, profile, token };
+      return { id, username, email, profile, token };
     } catch (error) {
       HandleDbErrors.handle(error);
     }
   }
 
   async login(loginCredentials: LoginUserDto): Promise<AuthResponseDto> {
-    const user = await this.userModel.findOne({ username: loginCredentials.username }).select(['username', 'password', 'profile']).populate('profile');
+    const user = await this.userModel
+      .findOne({ username: loginCredentials.username })
+      .select(['username', 'password', 'profile', 'email'])
+      .populate('profile');
     if (!user || !this.checkPassword(loginCredentials.password, user.password)) HandleAuthErrors.loginError();
-    const { username, id, profile } = user;
+    const { username, id, profile, email } = user;
     const token = this.getToken({ userId: id });
-    return { id, username, profile, token };
+    return { id, username, email, profile, token };
   }
 
   async renewToken(user: User): Promise<AuthResponseDto> {
-    const {id, username} = user
+    const { id, username, email } = user;
     const token = this.getToken({ userId: id });
-    const profile = await this.profileService.findOne(user.profile.toString(), user, {})
-    return { id, username, profile, token };
+    const profile = await this.profileService.findOne(user.profile.toString(), user, {});
+    return { id, username, email, profile, token };
   }
 
   private encryptPassword(password): string {
