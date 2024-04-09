@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+
 import { ExpenseTypes } from '../enums';
+import { transformDoc } from 'src/common/constants';
 
 @Schema()
 export class Expense extends Document {
@@ -39,3 +41,9 @@ export class Expense extends Document {
 }
 
 export const ExpenseSchema = SchemaFactory.createForClass(Expense);
+
+ExpenseSchema.set('toJSON', {
+  virtuals: true,
+  versionKey: false,
+  transform: transformDoc
+});
