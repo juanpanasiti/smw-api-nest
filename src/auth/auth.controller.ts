@@ -11,8 +11,8 @@ import { Auth } from './decorators/auth.decorator';
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly authService: AuthService // Dependency Injection
-    ) {}
+    private readonly authService: AuthService, // Dependency Injection
+  ) {}
 
   @Post('/register')
   @ApiResponse({ status: 201, description: 'Register new user', type: AuthResponseDto })
@@ -32,5 +32,4 @@ export class AuthController {
   renewToken(@GetUser() user: User) {
     return this.authService.renewToken(user);
   }
-
 }

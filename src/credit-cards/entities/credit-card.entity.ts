@@ -10,10 +10,10 @@ export class CreditCard extends Document {
   @Prop({ min: 0, default: 0 })
   limit: number;
 
-  @Prop({default: null})
+  @Prop({ default: null })
   nextClosingDate: Date | null;
-  
-  @Prop({default: null})
+
+  @Prop({ default: null })
   nextExpiringDate: Date;
 
   @Prop({ type: Types.ObjectId, ref: 'User', unique: false })
@@ -25,8 +25,6 @@ export class CreditCard extends Document {
   @Prop({ type: [Types.ObjectId], ref: 'CreditCard', default: [] })
   extensions: Types.ObjectId[];
 
-
-
   @Prop({ type: Boolean, default: true })
   isActive: boolean;
 }
@@ -35,5 +33,5 @@ export const CreditCardSchema = SchemaFactory.createForClass(CreditCard);
 CreditCardSchema.set('toJSON', {
   virtuals: true,
   versionKey: false,
-  transform: transformDoc
+  transform: transformDoc,
 });

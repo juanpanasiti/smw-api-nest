@@ -8,14 +8,7 @@ import { CreditCardsModule } from './credit-cards/credit-cards.module';
 import { ExpensesModule } from './expenses/expenses.module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot(),
-    AuthModule,
-    ProfileModule,
-    CreditCardsModule,
-    ExpensesModule,
-    MongooseModule.forRoot(process.env.MONGODB)
-  ],
+  imports: [ConfigModule.forRoot(), AuthModule, ProfileModule, CreditCardsModule, ExpensesModule, MongooseModule.forRoot(process.env.MONGODB)],
   controllers: [],
   providers: [],
 })

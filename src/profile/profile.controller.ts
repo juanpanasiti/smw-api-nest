@@ -35,7 +35,7 @@ export class ProfileController {
   update(@Param('id') id: string, @Body() updateProfileDto: UpdateProfileDto, @GetUser() user: User) {
     return this.profileService.update(id, updateProfileDto, user);
   }
-  
+
   @Delete(':id')
   @Auth(ValidRoles.admin)
   remove(@Param('id') id: string) {

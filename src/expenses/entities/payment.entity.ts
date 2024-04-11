@@ -15,7 +15,7 @@ export class Payment extends Document {
   @Prop()
   noInstallment: number;
 
-  @Prop({min: 1, max: 12})
+  @Prop({ min: 1, max: 12 })
   month: Month;
 
   @Prop()
@@ -30,5 +30,5 @@ export const PaymentSchema = SchemaFactory.createForClass(Payment);
 PaymentSchema.set('toJSON', {
   virtuals: true,
   versionKey: false,
-  transform: transformDoc
+  transform: transformDoc,
 });

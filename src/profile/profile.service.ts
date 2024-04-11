@@ -13,7 +13,7 @@ export class ProfileService {
     @InjectModel(Profile.name)
     private readonly profileModel: Model<Profile>,
   ) {}
-  
+
   async create(createProfileDto: CreateProfileDto, user: User) {
     try {
       const newProfile = await this.profileModel.create({ ...createProfileDto, user: user._id });
@@ -46,7 +46,7 @@ export class ProfileService {
   }
 
   async remove(id: string) {
-    await this.profileModel.findByIdAndUpdate(id, { isActive: false }); 
+    await this.profileModel.findByIdAndUpdate(id, { isActive: false });
   }
 
   private async getOneFromDb(query: object, populate: string = ''): Promise<Profile> {

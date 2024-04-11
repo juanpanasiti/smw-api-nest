@@ -1,4 +1,4 @@
 export enum ExpenseTypes {
-    purchase = 'purchase',
-    subscription = 'subscription',
+  purchase = 'purchase',
+  subscription = 'subscription',
 }

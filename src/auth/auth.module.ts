@@ -22,7 +22,7 @@ import { ProfileModule } from 'src/profile/profile.module';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     // Sync example
     // JwtModule.register({
-      //   secret: process.env.JWT_SECRET,
+    //   secret: process.env.JWT_SECRET,
     //   signOptions: {
     //     expiresIn: '1d',
     //   },

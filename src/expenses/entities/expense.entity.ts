@@ -45,5 +45,5 @@ export const ExpenseSchema = SchemaFactory.createForClass(Expense);
 ExpenseSchema.set('toJSON', {
   virtuals: true,
   versionKey: false,
-  transform: transformDoc
+  transform: transformDoc,
 });

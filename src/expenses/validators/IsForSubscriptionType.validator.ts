@@ -15,7 +15,7 @@ export function IsForSubscriptionType(acceptedValues: any[], validationOptions?:
         validate(value: any, args: ValidationArguments) {
           const [relatedPropertyName] = args.constraints;
           const relatedValue = (args.object as any)[relatedPropertyName];
-          if (relatedValue !== ExpenseTypes.subscription) return true
+          if (relatedValue !== ExpenseTypes.subscription) return true;
           return relatedValue === ExpenseTypes.subscription && acceptedValues.includes(value);
         },
       },
