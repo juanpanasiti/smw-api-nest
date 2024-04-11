@@ -42,12 +42,12 @@ export class ExpensesService {
   async findAll(user: User, options: OptionList) {
     const { limit = PAGE_LIMIT, offset = PAGE_OFFSET } = options;
     const filter = await this.getFilter(user, options);
-    let query = this.expenseModel.find(filter);
-
+    let query = this.expenseModel.find(filter).populate('payments');
     query = query.limit(limit).skip(offset);
     const expenseList = await query.exec();
     return expenseList;
   }
+
 
   async findOne(id: string): Promise<Expense> {
     return (await this.expenseModel.findById(id)).populate('payments');
