@@ -48,9 +48,8 @@ export class ExpensesService {
     return expenseList;
   }
 
-
   async findOne(id: string): Promise<Expense> {
-    return (await this.expenseModel.findById(id)).populate('payments');
+    return (await this.expenseModel.findById(id).populate('payments'));
   }
 
   async update(id: string, updateExpenseDto: UpdateExpenseDto, user: User): Promise<Expense> {
@@ -73,7 +72,10 @@ export class ExpensesService {
   }
 
   async remove(id: string) {
-    this.expenseModel.findByIdAndUpdate(id, { isActive: false });
+    const expense = await this.findOne(id);
+    if (!expense) HandleDbErrors.handle({ code: 'NOT_FOUND', message: 'Expense not found' });
+    expense.payments.forEach(async (pay) => await this.paymentModel.findByIdAndDelete(pay._id));
+    await this.expenseModel.findByIdAndDelete(id);
   }
 
   private async getCreditCard(creditCardId: string, user: User): Promise<CreditCard> {
