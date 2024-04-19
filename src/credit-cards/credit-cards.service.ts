@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -8,12 +8,17 @@ import { HandleDbErrors } from 'src/common/error-handlers';
 import { User } from 'src/auth/entities/user.entity';
 import { PAGE_LIMIT, PAGE_OFFSET } from 'src/common/constants';
 import { ListOptions } from './dto/list-options.dto';
+import { ExpensesService } from 'src/expenses/expenses.service';
+import { ExpenseTypes } from 'src/expenses/enums';
 
 @Injectable()
 export class CreditCardsService {
   constructor(
     @InjectModel(CreditCard.name)
     private readonly creditCardModel: Model<CreditCard>,
+
+    @Inject(forwardRef(() => ExpensesService))
+    private readonly expenseService: ExpensesService,
   ) {}
 
   async create(createCreditCardDto: CreateCreditCardDto, user: User) {
@@ -65,9 +70,22 @@ export class CreditCardsService {
   }
 
   async delete(id: string, user: User) {
-    const oldCreditCard = await this.getOneFromDb({ _id: id, owner: user._id });
-    if (!oldCreditCard) HandleDbErrors.handle({ code: 'NOT_FOUND', message: 'Credit card not found' });
-    await this.creditCardModel.findByIdAndUpdate(id, { isActive: false });
+    const creditCard = await this.getOneFromDb({ _id: id, owner: user._id });
+    if (!creditCard) HandleDbErrors.handle({ code: 'NOT_FOUND', message: 'Credit card not found' });
+    creditCard.extensions.forEach(async (ext) => {
+      try {
+        const extCc = await this.findOne(ext.toString(), user)
+        console.log('ext',extCc)
+        this.delete(ext.toString(), user)
+      } catch (error) {
+        console.error(error)
+      }
+    })  // Delete all extensions
+    const purchases = await this.expenseService.findAll(user, {creditCardId: id, type: ExpenseTypes.purchase});
+    const subscriptions = await this.expenseService.findAll(user, {creditCardId: id, type: ExpenseTypes.purchase});
+    purchases.forEach(purchase => this.expenseService.remove(purchase._id.toString()));
+    subscriptions.forEach(subscription => this.expenseService.remove(subscription._id.toString()));
+    await this.creditCardModel.findByIdAndDelete(id);
   }
 
   private async getOneFromDb(query: object, populate: string = ''): Promise<CreditCard> {
@@ -80,6 +98,7 @@ export class CreditCardsService {
       HandleDbErrors.handle(error);
     }
   }
+
 
   private cleanCreditCardDto({ mainCreditCard = null, name, ...restCreditCardData }: UpdateCreditCardDto): UpdateCreditCardDto {
     if (!mainCreditCard) return { name, ...restCreditCardData };
