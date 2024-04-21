@@ -72,6 +72,9 @@ export class CreditCardsService {
   async delete(id: string, user: User) {
     const creditCard = await this.getOneFromDb({ _id: id, owner: user._id });
     if (!creditCard) HandleDbErrors.handle({ code: 'NOT_FOUND', message: 'Credit card not found' });
+    if (!!creditCard.mainCreditCard) {
+      await this.removeExtension(creditCard.mainCreditCard.toString(), creditCard.id, user)
+    }
     creditCard.extensions.forEach(async (ext) => {
       try {
         const extCc = await this.findOne(ext.toString(), user)
